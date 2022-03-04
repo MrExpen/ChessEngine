@@ -14,6 +14,16 @@ public class Board
 
     public IEnumerable<ChessFigure> AllFigures => _figures.Cast<ChessFigure>().Where(x => x is not null);
 
+    public ChessFigure WhiteKing { get; private set; }
+    public ChessFigure BlackKing { get; private set; }
+
+    public ChessFigure GetKing(ChessColor color) => color switch
+    {
+        ChessColor.White => WhiteKing,
+        ChessColor.Black => BlackKing,
+        _ => throw new NotSupportedException()
+    };
+    
     public ChessColor Turn;
 
     public bool Tie { get; private set; }
@@ -30,7 +40,7 @@ public class Board
     
     public ChessPosition? LastPawnLongMove { get; private set; }
 
-    public Board Move(ChessMove chessMove)
+    public Board Move(ChessMove chessMove, bool validateMove = true)
     {
         if (Tie || Winner.HasValue)
         {
@@ -43,9 +53,12 @@ public class Board
         }
         
         var board = new Board(this);
-        if (!GetFigure(chessMove.From)!.CanMoveTo(chessMove.To))
+        if (validateMove)
         {
-            throw new InvalidMoveException();
+            if (!GetFigure(chessMove.From)!.CanMoveTo(chessMove.To))
+            {
+                throw new InvalidMoveException();
+            }
         }
 
         board.MoveFigure(chessMove.From, chessMove.To);
@@ -167,14 +180,12 @@ public class Board
 
         #region ResultsCheck
         
-        if (board.IsUnderAttack(board.AllFigures
-                .First(x => x.EnumFigure == EnumFigure.King && x.Color == board.Turn).Position, board.Turn.Flipped()) &&
+        if (board.IsUnderAttack(board.GetKing(board.Turn).Position, board.Turn.Flipped()) &&
             board.AllFigures.Where(x => x.Color == board.Turn).All(x => !x.GetMoves().Any()))
         {
             board.Winner = board.Turn.Flipped();
         }
-        else if (!board.IsUnderAttack(board.AllFigures
-                     .First(x => x.EnumFigure == EnumFigure.King && x.Color == board.Turn).Position, board.Turn.Flipped()) &&
+        else if (!board.IsUnderAttack(board.GetKing(board.Turn).Position, board.Turn.Flipped()) &&
                  board.AllFigures.Where(x => x.Color == board.Turn).All(x => !x.GetMoves().Any()))
         {
             board.Tie = true;
@@ -386,51 +397,6 @@ public class Board
 
         return false;
     }
-    public bool IsCheckedIf(ChessMove chessMove, ChessColor color)
-    {
-        Board board = new Board(this);
-        board.MoveFigure(chessMove.From, chessMove.To);
-        
-        #region CastlingCheck
-
-        if (GetFigure(chessMove.From)!.EnumFigure == EnumFigure.King &&
-            MathF.Abs(chessMove.From.X - chessMove.To.X) > 1.5f)
-        {
-            if (chessMove.From.X - chessMove.To.X > 0)
-            {
-                board.MoveFigure(new ChessPosition(0, chessMove.From.Y), new ChessPosition(3, chessMove.From.Y));
-            }
-            else
-            {
-                board.MoveFigure(new ChessPosition(7, chessMove.From.Y), new ChessPosition(5, chessMove.From.Y));
-            }
-        }
-
-        #endregion
-        
-        #region PawnLongEatCheck
-
-        if (GetFigure(chessMove.From)!.EnumFigure == EnumFigure.Pawn && chessMove.To == LastPawnLongMove)
-        {
-            switch (Turn)
-            {
-                case ChessColor.White:
-                    board._figures[chessMove.To.X, chessMove.To.Y - 1] = null;
-                    break;
-                case ChessColor.Black:
-                    board._figures[chessMove.To.X, chessMove.To.Y + 1] = null;
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
-        }
-
-        #endregion
-
-        var king = board.AllFigures.First(x => x.EnumFigure == EnumFigure.King && x.Color == color);
-
-        return board.IsUnderAttack(king.Position, color.Flipped());
-    }
     private static string GenerateFen(Board board)
     {
         var stringBuilder = new StringBuilder();
@@ -526,6 +492,20 @@ public class Board
             {
                 _figures[x, y] = ChessFigureFactory.Create(figure,
                     char.IsLower(tmp[0][i]) ? ChessColor.Black : ChessColor.White, new ChessPosition(x, y), this);
+                if (GetFigure(x, y)!.EnumFigure == EnumFigure.King)
+                {
+                    switch (GetFigure(x, y)!.Color)
+                    {
+                        case ChessColor.White:
+                            WhiteKing = GetFigure(x, y)!;
+                            break;
+                        case ChessColor.Black:
+                            BlackKing = GetFigure(x, y)!;
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+                }
                 x++;
             }
         }
@@ -569,7 +549,6 @@ public class Board
         HalfMoveClock = int.Parse(tmp[4]);
         FullMoveNumber = int.Parse(tmp[5]);
     }
-
     public Board(Board board)
     {
         for (int i = 0; i < 8; i++)
@@ -580,6 +559,20 @@ public class Board
                 if (figure is not null)
                 {
                     _figures[i, j] = ChessFigureFactory.Create(figure.EnumFigure, figure.Color, figure.Position, this);
+                    if (figure.EnumFigure == EnumFigure.King)
+                    {
+                        switch (figure.Color)
+                        {
+                            case ChessColor.White:
+                                WhiteKing = figure;
+                                break;
+                            case ChessColor.Black:
+                                BlackKing = figure;
+                                break;
+                            default:
+                                throw new NotSupportedException();
+                        }
+                    }
                 }
             }
         }

@@ -1,5 +1,4 @@
-﻿using ChessLib;
-using ChessLib.Data;
+﻿using ChessLib.Data;
 using ChessLib.Data.Structures;
 
 var game = new ChessGame();
