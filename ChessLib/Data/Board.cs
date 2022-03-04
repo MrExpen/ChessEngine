@@ -91,6 +91,23 @@ public class Board
         }
 
         #endregion
+
+        #region CastlingCheck
+
+        if (GetFigure(chessMove.From)!.EnumFigure == EnumFigure.King &&
+            MathF.Abs(chessMove.From.X - chessMove.To.X) > 1.5f)
+        {
+            if (chessMove.From.X - chessMove.To.X > 0)
+            {
+                board.MoveFigure(new ChessPosition(0, chessMove.From.Y), new ChessPosition(3, chessMove.From.Y));
+            }
+            else
+            {
+                board.MoveFigure(new ChessPosition(7, chessMove.From.Y), new ChessPosition(5, chessMove.From.Y));
+            }
+        }
+
+        #endregion
         
         #region PawnLongMoveCheck
 
@@ -138,23 +155,6 @@ public class Board
             {
                 board.BlackLongCastling = false;
                 board.BlackShortCastling = false;
-            }
-        }
-
-        #endregion
-
-        #region CastlingCheck
-
-        if (GetFigure(chessMove.From)!.EnumFigure == EnumFigure.King &&
-            MathF.Abs(chessMove.From.X - chessMove.To.X) > 1.5f)
-        {
-            if (chessMove.From.X - chessMove.To.X > 0)
-            {
-                board.MoveFigure(new ChessPosition(0, chessMove.From.Y), new ChessPosition(3, chessMove.From.Y));
-            }
-            else
-            {
-                board.MoveFigure(new ChessPosition(7, chessMove.From.Y), new ChessPosition(5, chessMove.From.Y));
             }
         }
 

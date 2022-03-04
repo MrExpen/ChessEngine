@@ -30,19 +30,19 @@ public class BoardAnalyzer : IBoardAnalyzer
 
         analyzedMove.Score = _positionAnalyzer.EvaluatePosition(analyzedMove.Board);
         
-        if (!_analyzedMove!.DeepMoves.Any())
+        if (!analyzedMove.DeepMoves.Any())
         {
-            foreach (var figure in _analyzedMove.Board.AllFigures.Where(x => x.Color == _analyzedMove.Board.Turn))
+            foreach (var figure in analyzedMove.Board.AllFigures.Where(x => x.Color == analyzedMove.Board.Turn))
             {
                 foreach (var position in figure.GetMoves())
                 {
-                    _analyzedMove.DeepMoves.Add(
-                        new AnalyzedMove(_analyzedMove.Board.Move(new ChessMove(figure.Position, position), false)));
+                    analyzedMove.DeepMoves.Add(
+                        new AnalyzedMove(analyzedMove.Board.Move(new ChessMove(figure.Position, position), false)));
                 }
             }
         }
 
-        foreach (var move in _analyzedMove.DeepMoves)
+        foreach (var move in analyzedMove.DeepMoves)
         {
             Analyze(move, deep - 1, false);
         }

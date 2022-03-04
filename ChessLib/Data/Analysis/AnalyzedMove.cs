@@ -1,4 +1,4 @@
-﻿namespace ChessLib.Data;
+﻿namespace ChessLib.Data.Analysis;
 
 public class AnalyzedMove
 {
