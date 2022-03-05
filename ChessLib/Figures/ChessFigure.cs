@@ -29,8 +29,7 @@ public abstract class ChessFigure
 
     protected bool MakesCheck(ChessPosition newPosition)
     {
-        var board = Board.Move(new ChessMove(Position, newPosition), false);
-        return board.IsUnderAttack(board.GetKing(Color).Position, Color.Flipped());
+        return Board.IsCheckedIf(new ChessMove(Position, newPosition), Color);
     }
     
     protected ChessFigure(EnumFigure enumFigure, ChessColor color, ChessPosition position, Board board)

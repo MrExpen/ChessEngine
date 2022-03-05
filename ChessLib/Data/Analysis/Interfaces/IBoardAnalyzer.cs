@@ -3,5 +3,5 @@
 
 public interface IBoardAnalyzer
 {
-    public void Analyze(AnalyzedMove analyzedMove, int deep = 6, bool main = true);
+    public void Analyze(AnalyzedMove analyzedMove, int deep, bool main = true);
 }

@@ -9,21 +9,19 @@ namespace ChessLib.Data;
 public class Board
 {
     public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    
-    private readonly ChessFigure?[,] _figures = new ChessFigure[8, 8];
+
+    private ChessFigure?[,] _figures { get; } = new ChessFigure[8, 8];
 
     public IEnumerable<ChessFigure> AllFigures => _figures.Cast<ChessFigure>().Where(x => x is not null);
 
-    public ChessFigure WhiteKing { get; private set; }
-    public ChessFigure BlackKing { get; private set; }
+    public ChessFigure WhiteKing =>
+        AllFigures.First(x => x.EnumFigure == EnumFigure.King && x.Color == ChessColor.White);
+    public ChessFigure BlackKing =>
+        AllFigures.First(x => x.EnumFigure == EnumFigure.King && x.Color == ChessColor.White);
 
-    public ChessFigure GetKing(ChessColor color) => color switch
-    {
-        ChessColor.White => WhiteKing,
-        ChessColor.Black => BlackKing,
-        _ => throw new NotSupportedException()
-    };
-    
+    public ChessFigure GetKing(ChessColor color) =>
+        AllFigures.First(x => x.EnumFigure == EnumFigure.King && x.Color == color);
+
     public ChessColor Turn;
 
     public bool Tie { get; private set; }
@@ -200,12 +198,62 @@ public class Board
         return board;
     }
 
+    public bool IsCheckedIf(ChessMove chessMove, ChessColor color)
+    {
+        var board = new Board(this);
+        board.MoveFigure(chessMove.From, chessMove.To);
+
+        #region CastlingCheck
+
+        if (GetFigure(chessMove.From)!.EnumFigure == EnumFigure.King &&
+            MathF.Abs(chessMove.From.X - chessMove.To.X) > 1.5f)
+        {
+            if (chessMove.From.X - chessMove.To.X > 0)
+            {
+                board.MoveFigure(new ChessPosition(0, chessMove.From.Y), new ChessPosition(3, chessMove.From.Y));
+            }
+            else
+            {
+                board.MoveFigure(new ChessPosition(7, chessMove.From.Y), new ChessPosition(5, chessMove.From.Y));
+            }
+        }
+
+        #endregion
+
+        #region PawnLongEatCheck
+
+        if (GetFigure(chessMove.From)!.EnumFigure == EnumFigure.Pawn && chessMove.To == LastPawnLongMove)
+        {
+            switch (Turn)
+            {
+                case ChessColor.White:
+                    board._figures[chessMove.To.X, chessMove.To.Y - 1] = null;
+                    break;
+                case ChessColor.Black:
+                    board._figures[chessMove.To.X, chessMove.To.Y + 1] = null;
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        #endregion
+
+        var king = board.GetKing(color);
+
+        return board.IsUnderAttack(king.Position, color.Flipped());
+    }
+    
     public ChessFigure? GetFigure(int x, int y) => _figures[x, y];
-    public ChessFigure? GetFigure(ChessPosition position) => GetFigure(position.X, position.Y);
+
+    public ChessFigure? GetFigure(ChessPosition position)
+    {
+        return position.IsValid ? GetFigure(position.X, position.Y) : null;
+    }
 
     private void MoveFigure(ChessPosition from, ChessPosition to)
     {
-        if (GetFigure(from) is null || GetFigure(to) is not null)
+        if (GetFigure(from) is null || GetFigure(to)?.Color == GetFigure(from)?.Color || GetFigure(to)?.EnumFigure == EnumFigure.King)
         {
             throw new InvalidMoveException();
         }
@@ -492,20 +540,6 @@ public class Board
             {
                 _figures[x, y] = ChessFigureFactory.Create(figure,
                     char.IsLower(tmp[0][i]) ? ChessColor.Black : ChessColor.White, new ChessPosition(x, y), this);
-                if (GetFigure(x, y)!.EnumFigure == EnumFigure.King)
-                {
-                    switch (GetFigure(x, y)!.Color)
-                    {
-                        case ChessColor.White:
-                            WhiteKing = GetFigure(x, y)!;
-                            break;
-                        case ChessColor.Black:
-                            BlackKing = GetFigure(x, y)!;
-                            break;
-                        default:
-                            throw new NotSupportedException();
-                    }
-                }
                 x++;
             }
         }
@@ -559,20 +593,6 @@ public class Board
                 if (figure is not null)
                 {
                     _figures[i, j] = ChessFigureFactory.Create(figure.EnumFigure, figure.Color, figure.Position, this);
-                    if (figure.EnumFigure == EnumFigure.King)
-                    {
-                        switch (figure.Color)
-                        {
-                            case ChessColor.White:
-                                WhiteKing = figure;
-                                break;
-                            case ChessColor.Black:
-                                BlackKing = figure;
-                                break;
-                            default:
-                                throw new NotSupportedException();
-                        }
-                    }
                 }
             }
         }

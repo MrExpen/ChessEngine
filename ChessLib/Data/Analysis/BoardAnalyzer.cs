@@ -5,7 +5,7 @@ namespace ChessLib.Data.Analysis;
 
 public class BoardAnalyzer : IBoardAnalyzer
 {
-    private AnalyzedMove? _analyzedMove;
+    private AnalyzedMove? _cached;
     private readonly IPositionAnalyzer _positionAnalyzer;
 
     public BoardAnalyzer(IPositionAnalyzer positionAnalyzer)
@@ -13,22 +13,27 @@ public class BoardAnalyzer : IBoardAnalyzer
         _positionAnalyzer = positionAnalyzer;
     }
 
-    public void Analyze(AnalyzedMove analyzedMove, int deep = 6, bool main = true)
+    public void Analyze(AnalyzedMove analyzedMove, int deep = 4, bool main = true)
     {
         if (main)
         {
-            _analyzedMove ??= analyzedMove;
-            _analyzedMove = analyzedMove.DeepMoves.TryGetValue(analyzedMove, out var actualMove)
-                ? actualMove
-                : analyzedMove;
+            _cached ??= analyzedMove;
+            if (analyzedMove != _cached)
+            {
+                analyzedMove = _cached.DeepMoves.TryGetValue(analyzedMove, out var actualMove)
+                    ? actualMove
+                    : analyzedMove;
+                _cached = actualMove;
+            }
         }
 
         if (deep == 0)
         {
+            analyzedMove.ClearCache();
             return;
         }
 
-        analyzedMove.Score = _positionAnalyzer.EvaluatePosition(analyzedMove.Board);
+        analyzedMove.Score ??= _positionAnalyzer.EvaluatePosition(analyzedMove.Board);
         
         if (!analyzedMove.DeepMoves.Any())
         {
@@ -46,5 +51,7 @@ public class BoardAnalyzer : IBoardAnalyzer
         {
             Analyze(move, deep - 1, false);
         }
+
+        analyzedMove.ClearCache();
     }
 }
