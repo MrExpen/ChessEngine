@@ -37,20 +37,22 @@ public class BoardAnalyzer : IBoardAnalyzer
         
         if (!analyzedMove.DeepMoves.Any())
         {
-            foreach (var figure in analyzedMove.Board.AllFigures.Where(x => x.Color == analyzedMove.Board.Turn))
+            var @lock = new object();
+            Parallel.ForEach(analyzedMove.Board.AllFigures.Where(x => x.Color == analyzedMove.Board.Turn), figure =>
             {
-                foreach (var position in figure.GetMoves())
+                Parallel.ForEach(figure.GetMoves(), position =>
                 {
-                    analyzedMove.DeepMoves.Add(
-                        new AnalyzedMove(analyzedMove.Board.Move(new ChessMove(figure.Position, position), false)));
-                }
-            }
+                    lock (@lock)
+                    {
+                        analyzedMove.DeepMoves.Add(
+                            new AnalyzedMove(analyzedMove.Board.Move(new ChessMove(figure.Position, position), false)));
+                    }
+                });
+            });
         }
 
-        foreach (var move in analyzedMove.DeepMoves)
-        {
-            Analyze(move, deep - 1, false);
-        }
+        Parallel.ForEach(analyzedMove.DeepMoves, move => Analyze(move, deep - 1, false));
+
 
         analyzedMove.ClearCache();
     }
