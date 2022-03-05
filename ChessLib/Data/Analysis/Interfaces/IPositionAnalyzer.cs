@@ -1,4 +1,4 @@
-﻿namespace ChessLib.Data.Analysis;
+﻿namespace ChessLib.Data.Analysis.Interfaces;
 
 public interface IPositionAnalyzer
 {
