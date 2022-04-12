@@ -253,7 +253,7 @@ public class Board
 
     private void MoveFigure(ChessPosition from, ChessPosition to)
     {
-        if (GetFigure(from) is null || GetFigure(to)?.Color == GetFigure(from)?.Color || GetFigure(to)?.EnumFigure == EnumFigure.King)
+        if (GetFigure(from) is null || GetFigure(to)?.Color == GetFigure(from)?.Color)
         {
             throw new InvalidMoveException();
         }

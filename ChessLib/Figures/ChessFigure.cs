@@ -19,7 +19,7 @@ public abstract class ChessFigure
         _ => (char)EnumFigure
     };
 
-    public abstract List<ChessPosition> GetMoves();
+    public abstract IEnumerable<ChessPosition> GetMoves();
 
     public virtual bool CanMoveTo(ChessPosition position)
     {

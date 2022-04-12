@@ -11,10 +11,8 @@ public class King : ChessFigure
     {
     }
 
-    public override List<ChessPosition> GetMoves()
+    public override IEnumerable<ChessPosition> GetMoves()
     {
-        var positions = new List<ChessPosition>();
-
         for (int i = -1; i <= 1; i++)
         {
             for (int j = -1; j <= 1; j++)
@@ -28,7 +26,10 @@ public class King : ChessFigure
 
                 if (Board.GetFigure(pos) is null || Board.GetFigure(pos)?.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
             }
         }
@@ -43,7 +44,10 @@ public class King : ChessFigure
                 && !Board.IsUnderAttack(new ChessPosition(3, 0), Color.Flipped())
                 && !Board.IsUnderAttack(new ChessPosition(4, 0), Color.Flipped()))
             {
-                positions.Add(new ChessPosition(2, 0));
+                if (!MakesCheck(new ChessPosition(2, 0)))
+                {
+                    yield return new ChessPosition(2, 0);
+                }
             }
 
             if (Board.WhiteShortCastling
@@ -53,7 +57,10 @@ public class King : ChessFigure
                 && !Board.IsUnderAttack(new ChessPosition(5, 0), Color.Flipped())
                 && !Board.IsUnderAttack(new ChessPosition(6, 0), Color.Flipped()))
             {
-                positions.Add(new ChessPosition(6, 0));
+                if (!MakesCheck(new ChessPosition(6, 0)))
+                {
+                    yield return new ChessPosition(6, 0);
+                }
             }
         }
         else if (Color == ChessColor.Black)
@@ -66,7 +73,10 @@ public class King : ChessFigure
                 && !Board.IsUnderAttack(new ChessPosition(3, 7), Color.Flipped())
                 && !Board.IsUnderAttack(new ChessPosition(4, 7), Color.Flipped()))
             {
-                positions.Add(new ChessPosition(2, 7));
+                if (!MakesCheck(new ChessPosition(2, 7)))
+                {
+                    yield return new ChessPosition(2, 7);
+                }
             }
 
             if (Board.BlackShortCastling
@@ -76,10 +86,11 @@ public class King : ChessFigure
                 && !Board.IsUnderAttack(new ChessPosition(5, 7), Color.Flipped())
                 && !Board.IsUnderAttack(new ChessPosition(6, 7), Color.Flipped()))
             {
-                positions.Add(new ChessPosition(6, 7));
+                if (!MakesCheck(new ChessPosition(6, 7)))
+                {
+                    yield return new ChessPosition(6, 7);
+                }
             }
         }
-
-        return positions.Where(x => !MakesCheck(x)).ToList();
     }
 }
