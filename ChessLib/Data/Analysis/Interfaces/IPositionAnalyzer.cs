@@ -1,11 +1,8 @@
-﻿namespace ChessLib.Data.Analysis.Interfaces;
+﻿using ChessLib.Data.Enums;
+
+namespace ChessLib.Data.Analysis.Interfaces;
 
 public interface IPositionAnalyzer
 {
-    /// <summary>
-    /// Return a White position valuation - Black position valuation
-    /// </summary>
-    /// <param name="board"></param>
-    /// <returns></returns>
-    public double EvaluatePosition(Board board);
+    public int EvaluatePosition(Board board, ChessColor color = ChessColor.White);
 }

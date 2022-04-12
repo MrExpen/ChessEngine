@@ -6,26 +6,36 @@ namespace ChessLib.Data.Analysis;
 
 public class PositionAnalyzer : IPositionAnalyzer
 {
-    public double EvaluatePosition(Board board)
+    public int EvaluatePosition(Board board, ChessColor color = ChessColor.White)
     {
-        return board.AllFigures.Sum(x => GetFigureScore(x, board));
+        return board.Winner switch
+        {
+            ChessColor.White => 300000,
+            ChessColor.Black => -300000,
+            _ => board.AllFigures.Sum(x => GetFigureScore(x, board))
+        } * color switch
+        {
+            ChessColor.White => 1,
+            ChessColor.Black => -1,
+            _ => throw new NotSupportedException()
+        };
     }
 
-    private double GetFigureScore(ChessFigure chessFigure, Board board)
+    private int GetFigureScore(ChessFigure chessFigure, Board board)
     {
-        double score = 0;
+        int score = 0;
         switch (chessFigure.EnumFigure)
         {
             case EnumFigure.Pawn:
             {
-                score += 1;
+                score += 1000;
                 switch (chessFigure.Color)
                 {
                     case ChessColor.White:
-                        score += chessFigure.Position.Y * 0.2;
+                        score += chessFigure.Position.Y * 200;
                         break;
                     case ChessColor.Black:
-                        score += (7 - chessFigure.Position.Y) * 0.2;
+                        score += (7 - chessFigure.Position.Y) * 200;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -33,49 +43,49 @@ public class PositionAnalyzer : IPositionAnalyzer
 
                 if (board.IsUnderAttack(chessFigure.Position, chessFigure.Color.Flipped()))
                 {
-                    score -= 0.5;
+                    score -= 500;
                 }
                 break;
             }
             case EnumFigure.Bishop:
             case EnumFigure.Knight:
             {
-                score += 3;
-                score += chessFigure.GetMoves().Count() * 0.1;
+                score += 3000;
+                score += chessFigure.GetMoves().Count() * 100;
                 
                 if (board.IsUnderAttack(chessFigure.Position, chessFigure.Color.Flipped()))
                 {
-                    score -= 1.5;
+                    score -= 1500;
                 }
                 if (board.IsUnderAttack(chessFigure.Position, chessFigure.Color.Flipped()))
                 {
-                    score += 0.5;
+                    score += 500;
                 }
                 break;
             }
             case EnumFigure.Rook:
             {
-                score += 5;
-                score += chessFigure.GetMoves().Count() * 0.1;
+                score += 5000;
+                score += chessFigure.GetMoves().Count() * 100;
                 
                 if (board.IsUnderAttack(chessFigure.Position, chessFigure.Color.Flipped()))
                 {
-                    score -= 3;
+                    score -= 3000;
                 }
                 if (board.IsUnderAttack(chessFigure.Position, chessFigure.Color.Flipped()))
                 {
-                    score += 0.5;
+                    score += 500;
                 }
                 break;
             }
             case EnumFigure.Queen:
             {
-                score += 9;
-                score += chessFigure.GetMoves().Count() * 0.1;
+                score += 9000;
+                score += chessFigure.GetMoves().Count() * 100;
                 
                 if (board.IsUnderAttack(chessFigure.Position, chessFigure.Color.Flipped()))
                 {
-                    score -= 7;
+                    score -= 7000;
                 }
                 break;
             }
