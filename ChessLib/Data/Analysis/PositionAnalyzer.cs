@@ -8,6 +8,10 @@ public class PositionAnalyzer : IPositionAnalyzer
 {
     public int EvaluatePosition(Board board, ChessColor color = ChessColor.White)
     {
+        if (board.Tie)
+        {
+            return 0;
+        }
         return board.Winner switch
         {
             ChessColor.White => 300000,

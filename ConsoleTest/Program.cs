@@ -4,7 +4,7 @@ using ChessLib.Data.Enums;
 using ChessLib.Data.Structures;
 
 var game = new ChessGame();
-var analyzer = new BoardAnalyzer(new PositionAnalyzer());
+var analyzer = new AlphaBetaAnalyzer(new PositionAnalyzer());
 
 while (!game.Current.Tie || !game.Current.Winner.HasValue)
 {
@@ -16,19 +16,19 @@ while (!game.Current.Tie || !game.Current.Winner.HasValue)
         }
         Console.WriteLine();
     }
-    var time = DateTime.Now;
-    var analyzed = new AnalyzedMove(game.Current);
-    if (game.Current.Turn == ChessColor.White)
+    if (game.Current.Turn == ChessColor.Black)
     {
-        analyzer.Analyze(analyzed);
-        game.Move(analyzed.DeepMoves.First().Move!.Value);
+        var time = DateTime.Now;
+        var bestMove = analyzer.GetBestMove(game.Current, 4);
+        Console.WriteLine(DateTime.Now - time);
+        Console.WriteLine(bestMove.From.ToString() + bestMove.To.ToString());
+        game.Move(bestMove);
     }
     else
     {
-        analyzer.Analyze(analyzed, 3);
-        game.Move(analyzed.DeepMoves.MinBy(x => x.Score).Move.Value);
+        var input = Console.ReadLine()!;
+        game.Move(new ChessMove(new ChessPosition(input.Substring(0, 2)), new ChessPosition(input.Substring(2, 2))));
     }
-    Console.WriteLine(DateTime.Now - time);
 }
 
 Console.WriteLine("done!");
