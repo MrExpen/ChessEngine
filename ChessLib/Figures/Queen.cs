@@ -10,22 +10,27 @@ public class Queen : ChessFigure
     {
     }
 
-    public override List<ChessPosition> GetMoves()
+    public override IEnumerable<ChessPosition> GetMoves()
     {
-        var positions = new List<ChessPosition>();
         
         for (var pos = Position + new ChessPosition(1, 1); pos.IsValid; pos += new ChessPosition(1, 1))
         {
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -36,13 +41,19 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -53,13 +64,19 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -70,13 +87,19 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -88,13 +111,19 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -105,13 +134,19 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -122,13 +157,19 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
@@ -139,19 +180,23 @@ public class Queen : ChessFigure
             var figure = Board.GetFigure(pos);
             if (figure is null)
             {
-                positions.Add(pos);
+                if (!MakesCheck(pos))
+                {
+                    yield return pos;
+                }
             }
             else 
             {
                 if (figure.Color != Color)
                 {
-                    positions.Add(pos);
+                    if (!MakesCheck(pos))
+                    {
+                        yield return pos;
+                    }
                 }
                 
                 break;
             }
         }
-
-        return positions.Where(x => !MakesCheck(x)).ToList();
     }
 }

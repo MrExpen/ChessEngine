@@ -10,9 +10,9 @@ public class Knight : ChessFigure
     {
     }
 
-    public override List<ChessPosition> GetMoves()
+    public override IEnumerable<ChessPosition> GetMoves()
     {
-        return new []
+        return new[]
         {
             Position + new ChessPosition(1, 2),
             Position + new ChessPosition(1, -2),
@@ -23,6 +23,6 @@ public class Knight : ChessFigure
             Position + new ChessPosition(2, -1),
             Position + new ChessPosition(-2, 1),
             Position + new ChessPosition(-2, -1)
-        }.Where(x => x.IsValid && Board.GetFigure(x)?.Color != Color && !MakesCheck(x)).ToList();
+        }.Where(x => x.IsValid && Board.GetFigure(x)?.Color != Color && !MakesCheck(x));
     }
 }

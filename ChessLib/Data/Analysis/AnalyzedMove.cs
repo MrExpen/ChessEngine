@@ -1,4 +1,6 @@
-﻿namespace ChessLib.Data.Analysis;
+﻿using ChessLib.Data.Structures;
+
+namespace ChessLib.Data.Analysis;
 
 public class AnalyzedMove
 {
@@ -16,7 +18,8 @@ public class AnalyzedMove
     
     public string Fen { get; }
     public double? Score { get; set; }
-    public HashSet<AnalyzedMove> DeepMoves { get; } = new();
+    public ChessMove? Move { get; set; }
+    public List<AnalyzedMove> DeepMoves { get; } = new();
 
     public AnalyzedMove(Board board)
     {

@@ -1,12 +1,10 @@
 ﻿using ChessLib.Data;
 using ChessLib.Data.Analysis;
+using ChessLib.Data.Enums;
 using ChessLib.Data.Structures;
 
-
-
-
 var game = new ChessGame();
-BoardAnalyzer analyzer = new BoardAnalyzer(new PositionAnalyzer());
+var analyzer = new AlphaBetaAnalyzer(new PositionAnalyzer());
 
 while (!game.Current.Tie || !game.Current.Winner.HasValue)
 {
@@ -18,20 +16,18 @@ while (!game.Current.Tie || !game.Current.Winner.HasValue)
         }
         Console.WriteLine();
     }
-    var time = DateTime.Now;
-    analyzer.Analyze(new AnalyzedMove(game.Current));
-    Console.WriteLine(DateTime.Now - time);
-    while (true)
+    if (game.Current.Turn == ChessColor.Black)
     {
-        try
-        {
-            game.Move(new ChessMove(new ChessPosition(Console.ReadLine()!), new ChessPosition(Console.ReadLine()!)));
-            break;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("invalid move");
-        }
+        var time = DateTime.Now;
+        var bestMove = analyzer.GetBestMove(game.Current, 4);
+        Console.WriteLine(DateTime.Now - time);
+        Console.WriteLine(bestMove.From.ToString() + bestMove.To.ToString());
+        game.Move(bestMove);
+    }
+    else
+    {
+        var input = Console.ReadLine()!;
+        game.Move(new ChessMove(new ChessPosition(input.Substring(0, 2)), new ChessPosition(input.Substring(2, 2))));
     }
 }
 
